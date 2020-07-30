@@ -80,7 +80,8 @@ class TestClass(unittest.TestCase):
         #  TYPE CHECKING
         ######################
         # If you give the wrong types, raise an appropriate error
-        self.assertRaises(TypeError, self.affine.encrypt, True, 7, 2)  # first argument has to be string
+        # first argument has to be string
+        self.assertRaises(TypeError, self.affine.encrypt, True, 7, 2)
         # second and third argument has to be an int
         self.assertRaises(TypeError, self.affine.encrypt, "irrelevant string", "7", 2)
         self.assertRaises(TypeError, self.affine.encrypt, "irrelevant string", 7, "2")
@@ -91,6 +92,26 @@ class TestClass(unittest.TestCase):
 
         # giving the function nothing results in "" being returned
         self.assertEqual(self.affine.encrypt(), "")
+
+        ######################
+        #  RESULTS CHECKING
+        ######################
+        # happy path tests
+        self.assertEqual(self.affine.encrypt("hello", 5, 6), "3$GGV")
+
+        # affine cipher should be case sensitive
+        self.assertNotEqual(self.affine.encrypt("hello", 5, 6), self.affine.encrypt("HELLO", 5, 6))
+
+        # can handle negative shifts just fine
+        self.assertEqual(self.affine.encrypt("str", -201, -4), "=2H")
+
+        # length is preserved by affine encryption
+        self.assertEqual(len(self.affine.encrypt("str", -201, -4)), len("str"))
+
+        # shift should be mod 95, for both shifts
+        self.assertEqual(self.affine.encrypt("String1", 97, 102), self.affine.encrypt("String1", 97, 7))
+        self.assertEqual(self.affine.encrypt("String2", 97, 102), self.affine.encrypt("String2", 2, 102))
+        self.assertEqual(self.affine.encrypt("String3", 97, 102), self.affine.encrypt("String3", 2, 7))
 
     def test_affine_decrypt(self):
         pass
