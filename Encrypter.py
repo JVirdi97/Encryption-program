@@ -12,10 +12,10 @@ class UnsupportedCharError(Exception):
 
 
 class Caeser:
-    def encrypt(self, expression="", shift=0):
-        if not isinstance(expression, str):
-            expression_type = type(expression)
-            raise TypeError("Expression must be a string. You gave {}.".format(expression_type))
+    def encrypt(self, plaintext="", shift=0):
+        if not isinstance(plaintext, str):
+            plaintext_type = type(plaintext)
+            raise TypeError("Plaintext must be a string. You gave {}.".format(plaintext_type))
         if not isinstance(shift, int):
             shift_type = type(shift)
             raise TypeError("Shift must be an integer. You gave {}.".format(shift_type))
@@ -24,26 +24,45 @@ class Caeser:
 
         ciphertext = ""
 
-        for char in expression:
+        for char in plaintext:
             char_num = ord(char)
             if char_num < 32 or char_num > 127:
                 raise UnsupportedCharError(char)
+            # need to do -32 to begin, as there if an offset of 32 from 0 for our alphabet
             char_num -= 32
             char_num += shift
             char_num %= 95
+            # we subtracted 32 to put start of alphabet at zero, now add 32 to compensate before converting to chars
             char_num += 32
             ciphertext += chr(char_num)
         return ciphertext
 
-    def decrypt(self, expression="", shift=0):
+    def decrypt(self, plaintext="", shift=0):
         shift *= -1
-        return self.encrypt(expression, shift)
+        return self.encrypt(plaintext, shift)
 
 
 class Affine:
     # function prototypes, will complete these once I've come up with tests
-    def encrypt(self):
-        pass
+    def encrypt(self, plaintext="", mul_shift=0, add_shift=0):
+        if not isinstance(plaintext, str):  # if the plaintext is not a string, then we cant encrypt it
+            raise TypeError("Plaintext must be a string")
+        if not isinstance(mul_shift, int):  # ensure that shifts are integers
+            raise TypeError("Multiplicative shift needs to be an integer.")
+        if not isinstance(add_shift, int):
+            raise TypeError("Additive shift needs to be an integer.")
+
+        # this will have characters added to it to make the encrypted message which we will return
+        ciphertext = ""
+
+        for char in plaintext:  # for each character in the original message
+            if ord(char) <= 31 or ord(char) >= 128:  # check that the character is not an unsupported one
+                raise UnsupportedCharError(char)
+            char_num = ord(char)  # convert character to number so we can carry out encryption
+            char_num = char_num * mul_shift + add_shift  # step 1 of encryption
+            char_num %= 95  # step 2
+            ciphertext += chr(char_num)  # turn the number back into a character, and add that to the encrypted string
+        return ciphertext
 
     def decrypt(self):
         pass
