@@ -93,14 +93,18 @@ class TestClass(unittest.TestCase):
         # giving the function nothing results in "" being returned
         self.assertEqual(self.affine.encrypt(), "")
 
+        """ our alphabet has a length of 95. If the multiplicative shift is not coprime with 95, then the encryption
+        cannot be decrypted. So we will raise an error telling the user that the combination is undecryptable """
+        self.assertRaises(UndecryptableCombinationError, self.affine.encrypt, "Irrelevant string", 5, 1)
+
         ######################
         #  RESULTS CHECKING
         ######################
         # happy path tests
-        self.assertEqual(self.affine.encrypt("hello", 5, 6), "3$GGV")
+        self.assertEqual(self.affine.encrypt("hello", 4, 6), "*::F")
 
         # affine cipher should be case sensitive
-        self.assertNotEqual(self.affine.encrypt("hello", 5, 6), self.affine.encrypt("HELLO", 5, 6))
+        self.assertNotEqual(self.affine.encrypt("hello", 4, 6), self.affine.encrypt("HELLO", 4, 6))
 
         # can handle negative shifts just fine
         self.assertEqual(self.affine.encrypt("str", -201, -4), "=2H")
@@ -114,7 +118,23 @@ class TestClass(unittest.TestCase):
         self.assertEqual(self.affine.encrypt("String3", 97, 102), self.affine.encrypt("String3", 2, 7))
 
     def test_affine_decrypt(self):
-        pass
+        ######################
+        #  TYPE CHECKING
+        ######################
+        # If you give the wrong types, raise an appropriate error
+        # first argument has to be string
+        self.assertRaises(TypeError, self.affine.encrypt, True, 7, 2)
+        # second and third argument has to be an int
+        self.assertRaises(TypeError, self.affine.encrypt, "irrelevant string", "7", 2)
+        self.assertRaises(TypeError, self.affine.encrypt, "irrelevant string", 7, "2")
+
+        # if you give an unsupported character, it raises an error
+        self.assertRaises(UnsupportedCharError, self.affine.encrypt, "{}".format(chr(31)), -9, 12)
+        self.assertRaises(UnsupportedCharError, self.affine.encrypt, "{}".format(chr(128)), -9, 12)
+
+        # giving the function nothing results in "" being returned
+        self.assertEqual(self.affine.encrypt(), "")
+
 
     def test_polyalphabetic_encrypt(self):
         # get a word, turn that word into sequence of numbers, use numbers for caeser ciphers, repeat num list until
