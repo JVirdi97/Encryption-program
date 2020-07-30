@@ -1,7 +1,8 @@
 from tkinter import *
-
+import math  # for gcd to check whether a combination has an inverse
 
 # RANGE OF CHARACTERS IS [chr(32), chr(127)]
+
 
 class UnsupportedCharError(Exception):
     def __init__(self, details):
@@ -9,6 +10,12 @@ class UnsupportedCharError(Exception):
 
     def __repr__(self):
         return "UnsupportedCharError. Unsupported character: {}".format(self.details)
+
+
+class UndecryptableCombinationError(Exception):
+    def __repr__(self):
+        return "UndecryptableCombinationError. This combination cannot be decrypted. Ensure that the multiplcative " \
+               "shift is coprime relative to 95."
 
 
 class Caeser:
@@ -51,6 +58,10 @@ class Affine:
             raise TypeError("Multiplicative shift needs to be an integer.")
         if not isinstance(add_shift, int):
             raise TypeError("Additive shift needs to be an integer.")
+        if plaintext == "" and mul_shift == 0 and add_shift == 0:
+            return ""
+        if math.gcd(mul_shift, 95) != 1:
+            raise UndecryptableCombinationError
 
         # this will have characters added to it to make the encrypted message which we will return
         ciphertext = ""
