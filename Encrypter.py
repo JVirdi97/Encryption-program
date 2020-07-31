@@ -1,9 +1,8 @@
 from tkinter import *
-import math  # for gcd to check whether a combination has an inverse
+from math import gcd  # we only want the gcd function, so single it out from the math package
+
 
 # RANGE OF CHARACTERS IS [chr(32), chr(127)]
-
-
 class UnsupportedCharError(Exception):
     def __init__(self, details):
         self.details = details
@@ -60,7 +59,7 @@ class Affine:
             raise TypeError("Additive shift needs to be an integer.")
         if plaintext == "" and mul_shift == 0 and add_shift == 0:
             return ""
-        if math.gcd(mul_shift, 95) != 1:
+        if gcd(mul_shift, 95) != 1:
             raise UndecryptableCombinationError
 
         # this will have characters added to it to make the encrypted message which we will return
@@ -70,14 +69,12 @@ class Affine:
             if ord(char) <= 31 or ord(char) >= 128:  # check that the character is not an unsupported one
                 raise UnsupportedCharError(char)
             char_num = ord(char)  # convert character to number so we can carry out encryption
+            char_num -= 32  # to make it so alphabet is indexed at 0, not 32
             char_num = char_num * mul_shift + add_shift  # step 1 of encryption
             char_num %= 95  # step 2
+            char_num += 32  # for conversion back, add 32 as our range is [32, 127]
             ciphertext += chr(char_num)  # turn the number back into a character, and add that to the encrypted string
         return ciphertext
 
     def decrypt(self):
         pass
-
-
-# for i in range(32, 127):
-#     print("'{}'".format(chr(i)))
