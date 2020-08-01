@@ -1,4 +1,3 @@
-from tkinter import *
 from math import gcd  # we only want the gcd function, so single it out from the math package
 
 
@@ -145,6 +144,24 @@ class Polyalphabetic:
             ciphertext += caeser.encrypt(plaintext[i], shift_list[index])
         return ciphertext
 
-    def decrypt(self):
-        # coming fairly soon
-        pass
+    def decrypt(self, ciphertext="", keystring=""):
+        if not isinstance(ciphertext, str):
+            raise TypeError("Ciphertext needs to be a string")
+        if not isinstance(keystring, str):
+            raise TypeError("Key needs to be a string")
+
+        plaintext = ""
+        shift_list = []  # to store our shifts in for when calling the caeser cipher
+        for i in keystring:  # turning keystring into list of shifts for caeser cipher
+            if 127 < ord(i) or ord(i) < 32:
+                raise UnsupportedCharError(i)
+            shift_list.append(ord(i))
+
+        len_shift_list = len(shift_list)
+        caeser = Caeser()  # rather than creating a new Caeser instance each iteration, just make 1 here
+        for i in range(0, len(ciphertext)):
+            if 127 < ord(ciphertext[i]) or ord(ciphertext[i]) < 32:
+                raise UnsupportedCharError(i)
+            index = i % len_shift_list  # to keep index within shift_list or we'd get IndexError
+            plaintext += caeser.decrypt(ciphertext[i], shift_list[index])
+        return plaintext
