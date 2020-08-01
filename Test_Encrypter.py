@@ -184,4 +184,25 @@ class TestClass(unittest.TestCase):
         self.assertEqual(self.polyalphabetic.encrypt("Hello world!", "IBM 5100"), "2HZ-EQH@\ORA")
 
     def test_polyalphabetic_decrypt(self):
-        pass
+        # same as before but with results reversed
+        # Two arguments, both of which are strings. Should raise a TypeError otherwise
+        self.assertRaises(TypeError, False, "Irrelevant")
+        self.assertRaises(TypeError, "Irrelevant", True)
+        self.assertRaises(TypeError, None, [])
+
+        # Entering nothing returns ""
+        self.assertEqual("", self.polyalphabetic.decrypt())
+
+        # if either string contains an unsupported character, raise an error
+        self.assertRaises(UnsupportedCharError, self.polyalphabetic.decrypt, chr(21), "world")
+        self.assertRaises(UnsupportedCharError, self.polyalphabetic.decrypt, chr(128), "this string is fine")
+
+        # cipher is case sensitive for both strings
+        self.assertNotEqual(self.polyalphabetic.decrypt("hi", "bye"), self.polyalphabetic.decrypt("HI", "bye"))
+        self.assertNotEqual(self.polyalphabetic.decrypt("hi", "bye"), self.polyalphabetic.decrypt("hi", "BYE"))
+
+        # length is preserved by affine decryption
+        self.assertEqual(len(self.polyalphabetic.decrypt("plaintext", "ciphertext")), len("plaintext"))
+
+        # happy path testing
+        self.assertEqual(self.polyalphabetic.decrypt("2HZ-EQH@\ORA", "IBM 5100"), "Hello world!")
