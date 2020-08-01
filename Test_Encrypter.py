@@ -9,6 +9,7 @@ class TestClass(unittest.TestCase):
     def setUp(self):
         self.caeser = Encrypter.Caeser()
         self.affine = Encrypter.Affine()
+        self.polyalphabetic = Encrypter.Polyalphabetic()
 
     def test_caeser_encrypt(self):
         """
@@ -118,12 +119,69 @@ class TestClass(unittest.TestCase):
         self.assertEqual(self.affine.encrypt("String3", 97, 102), self.affine.encrypt("String3", 2, 7))
 
     def test_affine_decrypt(self):
-        pass
+        """ This has the same requirements as affine encryption, just with results reversed; so may as well just modify
+        the tests from above """
+
+        ######################
+        #  TYPE CHECKING
+        ######################
+        # If you give the wrong types, raise an appropriate error
+        # first argument has to be string
+        self.assertRaises(TypeError, self.affine.decrypt, True, 7, 2)
+        # second and third argument has to be an int
+        self.assertRaises(TypeError, self.affine.decrypt, "irrelevant string", "7", 2)
+        self.assertRaises(TypeError, self.affine.decrypt, "irrelevant string", 7, "2")
+
+        # if you give an unsupported character, it raises an error
+        self.assertRaises(UnsupportedCharError, self.affine.decrypt, "{}".format(chr(31)), -9, 12)
+        self.assertRaises(UnsupportedCharError, self.affine.decrypt, "{}".format(chr(128)), -9, 12)
+
+        # giving the function nothing results in "" being returned
+        self.assertEqual(self.affine.decrypt(), "")
+
+        """ our alphabet has a length of 95. If the multiplicative shift is not coprime with 95, then the encryption
+        cannot be decrypted. So we will raise an error telling the user that the combination is undecryptable """
+        self.assertRaises(UndecryptableCombinationError, self.affine.decrypt, "Irrelevant string", 5, 1)
+
+        self.assertEqual(self.affine.decrypt(")|99E", 4, 6), "hello")
+
+        # affine cipher should be case sensitive
+        self.assertNotEqual(self.affine.decrypt("hello", 4, 6), self.affine.decrypt("HELLO", 4, 6))
+
+        # can handle negative shifts just fine
+        self.assertEqual(self.affine.decrypt("A6L", -201, -4), "str")
+
+        # length is preserved by affine encryption
+        self.assertEqual(len(self.affine.decrypt("str", -201, -4)), len("str"))
+
+        # shift should be mod 95, for both shifts
+        self.assertEqual(self.affine.decrypt("String1", 97, 102), self.affine.decrypt("String1", 97, 7))
+        self.assertEqual(self.affine.decrypt("String2", 97, 102), self.affine.decrypt("String2", 2, 102))
+        self.assertEqual(self.affine.decrypt("String3", 97, 102), self.affine.decrypt("String3", 2, 7))
 
     def test_polyalphabetic_encrypt(self):
-        # get a word, turn that word into sequence of numbers, use numbers for caeser ciphers, repeat num list until
-        # end of plaintext, and thats your ciphertext
-        pass
+        """ User gives a plaintext and then keystring """
+        # Two arguments, both of which are strings. Should raise a TypeError otherwise
+        self.assertRaises(TypeError, False, "Irrelevant")
+        self.assertRaises(TypeError, "Irrelevant", True)
+        self.assertRaises(TypeError, None, [])
+
+        # Entering nothing returns ""
+        self.assertEqual("", self.polyalphabetic.encrypt())
+
+        # if either string contains an unsupported character, raise an error
+        self.assertRaises(UnsupportedCharError, self.polyalphabetic.encrypt, chr(21), "world")
+        self.assertRaises(UnsupportedCharError, self.polyalphabetic.encrypt, chr(128), "this string is fine")
+
+        # cipher is case sensitive for both strings
+        self.assertNotEqual(self.polyalphabetic.encrypt("hi", "bye"), self.polyalphabetic.encrypt("HI", "bye"))
+        self.assertNotEqual(self.polyalphabetic.encrypt("hi", "bye"), self.polyalphabetic.encrypt("hi", "BYE"))
+
+        # length is preserved by affine encryption
+        self.assertEqual(len(self.polyalphabetic.encrypt("plaintext", "ciphertext")), len("plaintext"))
+
+        # happy path testing
+        self.assertEqual(self.polyalphabetic.encrypt("Hello world!", "IBM 5100"), "2HZ-EQH@\ORA")
 
     def test_polyalphabetic_decrypt(self):
         pass
