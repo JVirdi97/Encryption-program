@@ -246,7 +246,6 @@ class Polyalphabetic:
 
 
 def patch():
-    print("Called patch!")
     """ This function will determine which function needs to be called,
         and calls the appropriate function. """
     patch_dict = {0: Caeser.encrypt, 1: Affine.encrypt, 2: Polyalphabetic.encrypt,
@@ -263,13 +262,10 @@ def patch():
     # elif encryptTypeVar.get() == "Polyalphabetic":
     #     fn_no += 2
     #
-    # print(fn_no)
     # if encryptTypeVar.get() == "Affine":
     #     result = patch_dict[fn_no](operand_tb.get(), affine2.get(), op_key.get())
-    #     print(result)
     # else:
     #     result = patch_dict[fn_no](operand_tb.get(), op_key.get())
-    #     print(result)
 
 
 class App(tkinter.Tk):
